@@ -15,9 +15,9 @@ h1 {
 
 .message {
   color: rgb(255, 255, 255);
-  height: 75vh;
+  height: 80vh;
   margin-top: 20px;
-  font-size: x-large;
+  font-size: xx-large;
   flex-direction: column;
 
   display: flex; /* Use flexbox for layout */
@@ -37,7 +37,7 @@ h1 {
 }
 
 #message img {
-  max-width: 20px;
+  max-width: 40px;
   /* height: auto;  */
 }
 

@@ -149,11 +149,12 @@ socket.on("move.made", (data) => {
 // handling situation wher opp left
 socket.on("opponent.left", () => {
   resetSel.classList.remove("hide");
+  gameRegionSel.style.display = "none" ;
+  messageSel.style.height = "80vh";
+  messageSel.style.fontSize = "xx-large";
+  console.log("hiding game area") ;
   messageSel.style.color = "white";
   messageSel.textContent = "Your opponent left the game";
-  buttonSel.forEach((button) => {
-    button.disabled = true;
-  });
 });
 
 // reset button
