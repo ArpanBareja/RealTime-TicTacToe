@@ -1,6 +1,8 @@
 const socket = io();
 let myTurn = true,
-  symbol , clicks = 0 ;
+  symbol,
+  clicks = 0;
+let obj = {};
 let no_draw = true;
 let buttonSel = document.querySelectorAll(".box");
 let messageSel = document.querySelector("#message");
@@ -58,7 +60,7 @@ function makeMove() {
   }
 
   // emitting the symbol entered by player and btn id as obj
-  clicks ++ ;
+  // clicks++;
   socket.emit("make.move", {
     symbol: symbol,
     position: this.getAttribute("id"),
@@ -67,7 +69,6 @@ function makeMove() {
 
 // return an obj which stores symbol in that box
 function getBoardState() {
-  let obj = {};
   buttonSel.forEach((button) => {
     let buttonId = button.getAttribute("id");
     let buttonText = button.textContent || "";
@@ -76,16 +77,26 @@ function getBoardState() {
   return obj;
 }
 
-socket.on("draw", () => {
-  resetSel.classList.remove("hide");
-  messageSel.style.height = "80vh";
-  messageSel.style.fontSize = "xx-large";
-  messageSel.style.color = "#FFA603";
-  messageSel.innerHTML = "Draw";
-  console.log("Draw is to be displayed");
-  no_draw = false;
-  disableEnableBtn(true);
-});
+function isBoardEmpty(obj) {
+  let ans = 0;
+  buttonSel.forEach((button) => {
+    let buttonId = button.getAttribute("id");
+    console.log(obj) ;
+    if (obj[buttonId] == "") ans = 1;
+  });
+  return ans;
+}
+
+// socket.on("draw", () => {
+//   resetSel.classList.remove("hide");
+//   messageSel.style.height = "80vh";
+//   messageSel.style.fontSize = "xx-large";
+//   messageSel.style.color = "#FFA603";
+//   messageSel.innerHTML = "Draw";
+//   console.log("Draw is to be displayed");
+//   no_draw = false;
+//   disableEnableBtn(true);
+// });
 
 function isGameOver() {
   let state = getBoardState();
@@ -122,13 +133,12 @@ socket.on("move.made", (data) => {
 
   // if the symbol of the last move was the same as the current player
   // it means that now it's the opponent's turn
-  socket.emit("draw" , clicks) ;
+  // socket.emit("draw", clicks);
+  let is_gameOver = isGameOver() ;
+  let isEmpty = isBoardEmpty(obj);
+  console.log("isEmpty = " , isEmpty) ;
   myTurn = data.symbol !== symbol;
-  if (!isGameOver()) {
-    if (no_draw) displayMessage();
-  } else {
-    // else, showing win/lose message
-    //console.log(numberOfClicks) ;
+  if (is_gameOver) {
     resetSel.classList.remove("hide");
     messageSel.style.height = "80vh";
     messageSel.style.fontSize = "xx-large";
@@ -143,16 +153,47 @@ socket.on("move.made", (data) => {
     }
 
     disableEnableBtn(true);
+  } else if (isEmpty) {
+    displayMessage();
+  } else {
+    resetSel.classList.remove("hide");
+    messageSel.style.height = "80vh";
+    messageSel.style.fontSize = "xx-large";
+    messageSel.style.color = "#FFA603";
+    messageSel.innerHTML = "Draw";
+    console.log("Draw is to be displayed");
+    no_draw = false;
+    disableEnableBtn(true);
   }
+  // if (!isGameOver()) {
+  //   if (no_draw) displayMessage();
+  // } else {
+  // else, showing win/lose message
+  //console.log(numberOfClicks) ;
+  // resetSel.classList.remove("hide");
+  // messageSel.style.height = "80vh";
+  // messageSel.style.fontSize = "xx-large";
+
+  // if (myTurn) {
+  //   console.log("changing heading");
+  //   messageSel.style.color = "#940303";
+  //   messageSel.innerHTML = "You lost.";
+  // } else {
+  //   messageSel.style.color = "#07822c";
+  //   messageSel.innerHTML = "You won!";
+  // }
+
+  // disableEnableBtn(true);
+  // }
 });
 
 // handling situation wher opp left
 socket.on("opponent.left", () => {
   resetSel.classList.remove("hide");
-  gameRegionSel.style.display = "none" ;
+  gameRegionSel.style.display = "none";
   messageSel.style.height = "80vh";
   messageSel.style.fontSize = "xx-large";
-  console.log("hiding game area") ;
+  console.log("hiding game area");
   messageSel.style.color = "white";
   messageSel.textContent = "Your opponent left the game";
 });

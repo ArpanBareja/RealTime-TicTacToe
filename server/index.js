@@ -10,12 +10,13 @@ const fs = require("fs");
 
 const port = process.env.PORT || 8888;
 // unmatched will store socket.id
-var players = {},
+var players = {}, clients = {} ,
   unmatched = null;
 
 // socket io
 io.on("connection", (socket) => {
   console.log("New client conneted with user_socket.id: ", socket.id);
+  clients[socket.id] = socket ;
 
   join(socket);
 
@@ -62,13 +63,13 @@ io.on("connection", (socket) => {
     socket.emit("move.made", data);
     opponentOf(socket).emit("move.made", data);
 
-    socket.on("draw" , (clicks) => {
-      opponentOf(socket).on("draw" , (oppClicks => {
-        if( clicks + oppClicks == 9 ) {
-          socket.emit("draw") ;
-        }
-      })) 
-    });
+    // socket.on("draw" , (clicks) => {
+    //   opponentOf(socket).on("draw" , (oppClicks => {
+    //     if( clicks + oppClicks == 9 ) {
+    //       socket.emit("draw") ;
+    //     }
+    //   })) 
+    // });
   });
 
   // client disconnetion
@@ -76,6 +77,7 @@ io.on("connection", (socket) => {
     console.log("Disconnected Client socket.id: ", socket.id);
     if (opponentOf(socket)) opponentOf(socket).emit("opponent.left");
     socket.broadcast.emit("clientdisconnect", socket.id);
+    delete clients[socket.id] ;
   });
 });
 
